@@ -19,11 +19,30 @@ class LinkedList(object):
 			# reset head to new node
 			self.head = node
 			
+	def search(self, lList, Node):
+		if self.head == Node:
+			return self.head
+		else:
+			if lList.head.nextNode:
+				self.search(linkedList(lList.head.nextNode), Node)
+			else:
+				raise ValueError("Node not in Linked List")
+				
+	def size(self):
+		current = self.head
+		size = 0
+		while current is not None:
+			size += 1
+			current = current.nextNode
+			return size
+		
 	def output(self):
-		pass
+		while self.head is not None:
+			print self.head
+			self.head = self.head.nextNode
 			
 linkedList = LinkedList()
 linkedList.insert(node(2))
 linkedList.insert(node(3))
-	
-print linkedList.head
+linkedList.insert(node(1))
+linkedList.output()

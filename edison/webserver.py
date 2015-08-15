@@ -10,7 +10,7 @@ html = """<!DOCTYPE html>
 </head>
 
 <body>
-<a><img id="switch" src="http://i.dailymail.co.uk/i/pix/2014/01/26/article-2546363-1AFB247500000578-934_306x423.jpg"></a>
+<a><img id="switch" src="http://www.clker.com/cliparts/4/6/u/B/L/k/incandescent-light-bulb-off-hi.png"></a>
 </body>
 
 
@@ -18,7 +18,7 @@ html = """<!DOCTYPE html>
 function on() {
     console.log("on");
     flag = true;
-    src = "http://cdn.vectorstock.com/i/composite/54,91/tungsten-light-bulb-vector-155491.jpg";
+    src = "http://www.clker.com/cliparts/c/B/T/E/V/y/incandescent-light-bulb-on-hi.png";
     $('#switch').attr("src", src);
     $.get( "/on" );
 }
@@ -26,7 +26,7 @@ function on() {
 function off() {
     console.log("off");
     flag = false;
-     src = "http://i.dailymail.co.uk/i/pix/2014/01/26/article-2546363-1AFB247500000578-934_306x423.jpg";
+     src = "http://www.clker.com/cliparts/4/6/u/B/L/k/incandescent-light-bulb-off-hi.png";
     $('#switch').attr("src", src);
     $.get( "/off" );
 }

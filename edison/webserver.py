@@ -1,6 +1,5 @@
 from wsgiref.simple_server import make_server
 import mraa
-import time
 
 x = mraa.Gpio(13)
 x.dir(mraa.DIR_OUT)

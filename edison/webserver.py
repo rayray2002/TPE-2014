@@ -9,7 +9,7 @@ def on():
 	x.write(1)
 	
 def off():
-    print "off"
+	print "off"
 	x.write(0)
 
 def my_app(environ, start_response):

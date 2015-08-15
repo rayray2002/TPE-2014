@@ -14,11 +14,11 @@ def off():
 
 def my_app(environ, start_response):
 	"""a simple wsgi application"""
-	def ray():
+	def ray(path):
 		status = '200 OK'
 		response_headers = [('Content-type', 'text/plain')]
 		start_response(status, response_headers)
-		return ["abc"]
+		return [path]
 		
 	path = environ['PATH_INFO']
 	if path.find("/on")>=0:
@@ -26,7 +26,7 @@ def my_app(environ, start_response):
 	elif path.find("/off")>=0:
 		off()
 	#print path
-	return ray()
+	return ray(path)
 
 port = 8000
 

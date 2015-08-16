@@ -25,10 +25,13 @@ def my_app(environ, start_response):
 		
 		laser = mraa.Gpio(13)
 		laser.dir(mraa.DIR_OUT)
+		
+		laser.write(1)
+		print "start bit"
+		time.sleep(0.2)
+		
 		for l in range(len(data)):
-			print "byte", l
-			laser.write(1)
-			time.sleep(0.2)
+			print "byte", l,
 			for i in range(8):
 				if getbit(data[l],i) == 1:
 					print "on"
@@ -37,8 +40,11 @@ def my_app(environ, start_response):
 					print "off"
 					laser.write(0)
 				time.sleep(0.2)
-			laser.write(0)
-			time.sleep(0.2)
+				
+		laser.write(0)
+		print "end bit"
+		time.sleep(0.2)
+		
 	return index()
 
 httpd = make_server('', 8000, my_app)

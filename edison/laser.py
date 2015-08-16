@@ -31,7 +31,10 @@ def my_app(environ, start_response):
 		time.sleep(0.2)
 		
 		for l in range(len(data)):
-			print "byte", l,
+			if l == 0:
+				print "x"
+			else:
+				print "y"
 			for i in range(8):
 				if getbit(data[l],i) == 1:
 					print "on"

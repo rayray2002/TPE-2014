@@ -23,15 +23,15 @@ def my_app(environ, start_response):
 		data = [x, y]
 		print x, y
 		
-		laser = mraa.Gpio(13)
-		laser.dir(mraa.DIR_OUT)
+		laser_pin = mraa.Gpio(8)
+		laser_pin.dir(mraa.DIR_OUT)
 		delay = 1
 		for i in range(100):
 			print '='*10, i
 			print "start bit"
-			laser.write(1)
+			laser_pin.write(1)
 			time.sleep(delay/2)
-			laser.write(0)
+			laser_pin.write(0)
 			time.sleep(delay/2)
 			
 			for l in range(len(data)):
@@ -42,12 +42,12 @@ def my_app(environ, start_response):
 				for i in range(8):
 					if getbit(data[l],i) == 1:
 						print "on"
-						laser.write(1)
+						laser_pin.write(1)
 					else:
 						print "off"
-						laser.write(0)
+						laser_pin.write(0)
 					time.sleep(delay/2)
-					laser.write(0)
+					laser_pin.write(0)
 					time.sleep(delay/2)
 					
 			time.sleep(3)

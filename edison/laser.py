@@ -45,9 +45,9 @@ def my_app(environ, start_response):
 					else:
 						print i, "off"
 						laser_pin.write(0)
-					time.sleep(delay/2)
+					time.sleep(delay/3)
 					laser_pin.write(0)
-					time.sleep(delay/2)
+					time.sleep(delay*2/3)
 					
 			time.sleep(2)
 		

@@ -43,7 +43,11 @@ def my_app(environ, start_response):
 					else:
 						print "off"
 						laser.write(0)
-					time.sleep(delay)
+					time.sleep(delay/2)
+					
+					laser.write(0)
+					time.sleep(delay/2)
+					
 					
 			laser.write(0)
 			time.sleep(delay)

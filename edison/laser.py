@@ -27,6 +27,8 @@ def my_app(environ, start_response):
 		laser.dir(mraa.DIR_OUT)
 		for l in range(len(data)):
 			print "byte", l
+			laser.write(1)
+			time.sleep(0.2)
 			for i in range(8):
 				if getbit(data[l],i) == 1:
 					print "on"
@@ -35,6 +37,8 @@ def my_app(environ, start_response):
 					print "off"
 					laser.write(0)
 				time.sleep(0.2)
+			laser.write(0)
+			time.sleep(0.2)
 	return index()
 
 httpd = make_server('', 8000, my_app)

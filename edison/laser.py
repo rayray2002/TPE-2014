@@ -47,7 +47,7 @@ def my_app(environ, start_response):
 					
 			laser.write(0)
 			print "end bit"
-			time.sleep(delay)
+			time.sleep(1.2)
 		
 	return index()
 

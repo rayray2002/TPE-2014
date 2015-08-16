@@ -26,28 +26,28 @@ def my_app(environ, start_response):
 		laser = mraa.Gpio(13)
 		laser.dir(mraa.DIR_OUT)
 		delay = 0.1
-		
-		laser.write(1)
-		print "start bit"
-		time.sleep(delay)
-		
-		for l in range(len(data)):
-			if l == 0:
-				print "x"
-			else:
-				print "y"
-			for i in range(8):
-				if getbit(data[l],i) == 1:
-					print "on"
-					laser.write(1)
+		while True:
+			laser.write(1)
+			print "start bit"
+			time.sleep(delay)
+			
+			for l in range(len(data)):
+				if l == 0:
+					print "x"
 				else:
-					print "off"
-					laser.write(0)
-				time.sleep(delay)
-				
-		laser.write(0)
-		print "end bit"
-		time.sleep(delay)
+					print "y"
+				for i in range(8):
+					if getbit(data[l],i) == 1:
+						print "on"
+						laser.write(1)
+					else:
+						print "off"
+						laser.write(0)
+					time.sleep(delay)
+					
+			laser.write(0)
+			print "end bit"
+			time.sleep(delay)
 		
 	return index()
 

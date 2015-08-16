@@ -25,10 +25,11 @@ def my_app(environ, start_response):
 		
 		laser = mraa.Gpio(13)
 		laser.dir(mraa.DIR_OUT)
+		delay = 0.1
 		
 		laser.write(1)
 		print "start bit"
-		time.sleep(0.2)
+		time.sleep(delay)
 		
 		for l in range(len(data)):
 			if l == 0:
@@ -42,11 +43,11 @@ def my_app(environ, start_response):
 				else:
 					print "off"
 					laser.write(0)
-				time.sleep(0.2)
+				time.sleep(delay)
 				
 		laser.write(0)
 		print "end bit"
-		time.sleep(0.2)
+		time.sleep(delay)
 		
 	return index()
 

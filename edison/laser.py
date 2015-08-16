@@ -25,14 +25,14 @@ def my_app(environ, start_response):
 		
 		laser_pin = mraa.Gpio(8)
 		laser_pin.dir(mraa.DIR_OUT)
-		delay = 0.2 #0.2 * 17 + 2
+		delay = 0.3 #0.3 * 17 + 2
 		for i in range(5):
 			print '='*10, i
 			print "start bit"
 			laser_pin.write(1)
-			time.sleep(delay/2)
+			time.sleep(delay/3)
 			laser_pin.write(0)
-			time.sleep(delay/2)
+			time.sleep(delay*2/3)
 			
 			for l in range(len(data)):
 				if l == 0: print "x"

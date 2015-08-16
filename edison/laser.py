@@ -25,7 +25,7 @@ def my_app(environ, start_response):
 		
 		laser = mraa.Gpio(13)
 		laser.dir(mraa.DIR_OUT)
-		delay = 0.5
+		delay = 0.2
 		while True:
 			laser.write(1)
 			print "start bit"
@@ -46,6 +46,7 @@ def my_app(environ, start_response):
 					time.sleep(delay)
 					
 			laser.write(0)
+			time.sleep(delay)
 			print "end bit"
 			time.sleep(5)
 		

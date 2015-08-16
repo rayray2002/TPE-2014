@@ -2,9 +2,6 @@ from wsgiref.simple_server import make_server
 from cgi import parse_qs
 import mraa
 import time
- 
-x = mraa.Gpio(13)
-x.dir(mraa.DIR_OUT)
 
 def my_app(environ, start_response):
 	"""a simple led wsgi application"""
@@ -26,15 +23,17 @@ def my_app(environ, start_response):
 		data = [x, y]
 		print x, y
 		
+		laser = mraa.Gpio(13)
+		laser.dir(mraa.DIR_OUT)
 		for l in range(len(data)):
 			print "byte", l
 			for i in range(8):
 				if getbit(data[l],i) == 1:
 					print "on"
-					x.write(1)
+					laser.write(1)
 				else:
 					print "off"
-					x.write(0)
+					laser.write(0)
 				time.sleep(0.2)
 	return index()
 

@@ -35,22 +35,21 @@ def my_app(environ, start_response):
 			time.sleep(delay/2)
 			
 			for l in range(len(data)):
-				if l == 0:
-					print "x"
-				else:
-					print "y"
+				if l == 0: print "x"
+				else: print "y"
+				
 				for i in range(8):
 					if getbit(data[l],i) == 1:
-						print "on"
+						print i, "on"
 						laser_pin.write(1)
 					else:
-						print "off"
+						print i, "off"
 						laser_pin.write(0)
 					time.sleep(delay/2)
 					laser_pin.write(0)
 					time.sleep(delay/2)
 					
-			time.sleep(5)
+			time.sleep(3)
 		
 	return index()
 

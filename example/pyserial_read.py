@@ -7,7 +7,7 @@ import serial, time
 #    2. 0: non-blocking mode, return immediately
 #    3. x, x is bigger than 0, float allowed, timeout block call
 ser = serial.Serial()
-ser.port = "/dev/ttyS2"
+ser.port = "/dev/ttyMFD1"
 ser.baudrate = 9600
 ser.bytesize = serial.EIGHTBITS #number of bits per bytes
 ser.parity = serial.PARITY_NONE #set parity check: no parity

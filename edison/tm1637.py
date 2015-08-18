@@ -2,10 +2,11 @@ import time, signal
 import pyupm_tm1637 as tm1637
 
 # Register exit handler for normal Ctrl+C exit
+"""
 def SIGINTHandler(signum, frame):
     raise SystemExit
 signal.signal(signal.SIGINT, SIGINTHandler)
-
+"""
 # Create a display object on pins 0 CLK and 1 DIO
 display = tm1637.TM1637(4, 5)
 dots = True

@@ -41,6 +41,6 @@ if ser.isOpen():
         ser.close()
     except Exception, e1:
 
-    print "error communicating...: " + str(e1)
-else:
-    print "cannot open serial port "
+		print "error communicating...: " + str(e1)
+	else:
+		print "cannot open serial port "

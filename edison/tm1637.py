@@ -7,7 +7,7 @@ def SIGINTHandler(signum, frame):
 signal.signal(signal.SIGINT, SIGINTHandler)
 
 # Create a display object on pins 0 CLK and 1 DIO
-display = tm1637.TM1637(0, 1)
+display = tm1637.TM1637(4, 5)
 dots = True
 
 # Get local time

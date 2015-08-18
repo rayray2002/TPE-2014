@@ -4,7 +4,7 @@ from cgi import parse_qs
 import time
 from uart import SerialManager
 
-smgr = SerialManager('COM14')
+smgr = SerialManager('/dev/ttyMFD1')
 smgr.start()
 
 def my_app(environ, start_response):

@@ -1,2 +1,4 @@
 # TPE-2014
-WRO
+intel edison
+Arduino
+EV3dev

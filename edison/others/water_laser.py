@@ -13,16 +13,12 @@ def my_app(environ, start_response):
 		
 	def getbit(data, bit):
 		return (data & (1<<(7 - bit))) >> 7 - bit
-	
-	p = environ['PATH_INFO']
-	if p.find("/cord")>=0:
-		d = parse_qs(environ['QUERY_STRING'])
 		
-		x = int(d.get('x',[0])[0])
-		y = int(d.get('y',[0])[0])
+	def cord(query_dict, start_response):
+		x = int(query_dict.get('x',[0])[0])
+		y = int(query_dict.get('y',[0])[0])
 		data = [x, y]
 		print x, y
-		
 		laser_pin = mraa.Gpio(8)
 		laser_pin.dir(mraa.DIR_OUT)
 		delay = 0.3 #0.3 * 17 + 2
@@ -48,11 +44,42 @@ def my_app(environ, start_response):
 					time.sleep(delay/3)
 					laser_pin.write(0)
 					time.sleep(delay*2/3)
-					
+
 			time.sleep(2)
 		
-	return index()
+		status = '200 OK'
+		response_headers = [('Content-type', 'text/plain')]
+		start_response(status, response_headers)
+		return "Sent"
 
-httpd = make_server('', 8000, my_app)
-print "Serving on port 8000..."
+	def motor(environ, start_response):
+		dir = int(query_dict.get('dir',[0])[0]) #either 1 or 2
+		time = int(query_dict.get('time',[0])[0])
+		in_1 = mraa.Gpio(5) #arduino 5
+		in_2 = mraa.Gpio(4) #arduino 4
+		standy_pin = mraa.Gpio(6) #arduino 6
+		pwm = mraa.Pwm(3) #arduino 3
+		pwm.enable(True)
+		pwm.write(0.5)
+		
+		standy_pin.write(1) #disable standby
+		if dir==1:
+			in_1.write(1)
+			in_2.write(0)
+		else:
+			in_1.write(0)
+			in_2.write(1)
+		pwm.write(0.5)
+		standy_pin.write(0) #standby
+
+	p = environ['PATH_INFO']
+	query_dict = parse_qs(environ['QUERY_STRING'])
+	if p.find("/cord")>=0:
+		cord(query_dict, start_response)
+	if p.find("/motor")>=0:
+		motor(query_dict, start_response)
+		
+
+httpd = make_server('', 8123, my_app)
+print "Serving on port 8123..."
 httpd.serve_forever()

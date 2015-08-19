@@ -19,7 +19,7 @@ def my_app(environ, start_response):
 		return (data & (1<<(7 - bit))) >> 7 - bit
 	
 	p = environ['PATH_INFO']
-	if p.find("/cord")>=0:
+	if p.find("/control")>=0:
 		d = parse_qs(environ['QUERY_STRING'])
 		
 		state = d.get('state',[0])[0]

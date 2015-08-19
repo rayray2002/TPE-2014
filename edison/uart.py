@@ -22,7 +22,13 @@ class SerialManager(Thread):
 		self.read_num_bytes  = 256
 		self.sleeptime = None
 		self._chunker = None
-
+		
+	def read(self):
+		return self.in_queue.get()
+		
+	def write(self, data):
+		self.out_queue.put( data )
+		
 	def run(self):
 		try:
 			while self.running:
@@ -30,7 +36,7 @@ class SerialManager(Thread):
 				in_data = self.ser.read(self.read_num_bytes)
 				print 'run in_data', in_data
 				if in_data:
-					self.in_queue.put(in_data)
+					write(in_data)
 				try:
 					out_buffer = self.out_queue.get_nowait()
 					self.ser.write(out_buffer)
@@ -38,12 +44,6 @@ class SerialManager(Thread):
 					pass
 		except (KeyboardInterrupt, SystemExit): pass
 		self.ser.close()
-		
-	def read(self):
-		return self.in_queue.get()
-		
-	def write(self, data):
-		self.out_queue.put( data )
 		
 	def close(self):
 		self.running = False
@@ -77,4 +77,4 @@ def main():
 	s1.join()
 
 if __name__ == "__main__":
-	main()
+	main() 

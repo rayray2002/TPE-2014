@@ -18,7 +18,7 @@ def my_app(environ, start_response):
 		x = int(query_dict.get('x',[0])[0])
 		y = int(query_dict.get('y',[0])[0])
 		data = [x, y]
-		print x, y
+		print 'cord', x, y
 		laser_pin = mraa.Gpio(8)
 		laser_pin.dir(mraa.DIR_OUT)
 		delay = 0.3 #0.3 * 17 + 2
@@ -51,7 +51,8 @@ def my_app(environ, start_response):
 		response_headers = [('Content-type', 'text/plain')]
 		start_response(status, response_headers)
 		return "Sent"
-
+		
+	# http://192.168.1.109:8123/motor?
 	def motor(environ, start_response):
 		dir = int(query_dict.get('dir',[0])[0]) #either 1 or 2
 		time = int(query_dict.get('time',[0])[0])
@@ -71,13 +72,23 @@ def my_app(environ, start_response):
 			in_2.write(1)
 		pwm.write(0.5)
 		standy_pin.write(0) #standby
+		
+		status = '200 OK'
+		response_headers = [('Content-type', 'text/plain')]
+		start_response(status, response_headers)
+		return "Sent"
 
 	p = environ['PATH_INFO']
 	query_dict = parse_qs(environ['QUERY_STRING'])
+	
 	if p.find("/cord")>=0:
 		cord(query_dict, start_response)
+		
 	if p.find("/motor")>=0:
 		motor(query_dict, start_response)
+	if p.find("/")>=0:
+	
+		index()
 		
 
 httpd = make_server('', 8123, my_app)

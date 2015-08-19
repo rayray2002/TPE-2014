@@ -2,6 +2,8 @@
 intel edison 
 Arduino 
 EV3dev 
+motor
+esc
 
 
 TODO:

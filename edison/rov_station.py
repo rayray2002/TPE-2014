@@ -14,10 +14,10 @@ def my_app(environ, start_response):
 		response_headers = [('Content-type', 'text/plain')]
 		start_response(status, response_headers)
 		return ["please enter xy"]
-		
+	"""	
 	def getbit(data, bit):
 		return (data & (1<<(7 - bit))) >> 7 - bit
-	
+	"""
 	p = environ['PATH_INFO']
 	if p.find("/control")>=0:
 		d = parse_qs(environ['QUERY_STRING'])

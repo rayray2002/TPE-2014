@@ -56,7 +56,7 @@ def my_app(environ, start_response):
 	def motor(environ, start_response):
 		dir = int(query_dict.get('dir',[0])[0]) #either 1 or 2
 		t = int(query_dict.get('time',[0])[0])
-		pwm = int(query_dict.get('pwm',[0])[0])
+		p = int(query_dict.get('pwm',[0])[0])
 		in_1 = mraa.Gpio(5) #arduino 5
 		in_1.dir(mraa.DIR_OUT)
 		in_2 = mraa.Gpio(4) #arduino 4
@@ -65,7 +65,7 @@ def my_app(environ, start_response):
 		standy_pin.dir(mraa.DIR_OUT)
 		pwm = mraa.Pwm(3) #arduino 3
 		pwm.enable(True)
-		pwm.write(pwm/100)
+		pwm.write(p/100)
 		
 		standy_pin.write(1) #disable standby
 		if dir==1:

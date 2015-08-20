@@ -7,7 +7,7 @@ def my_app(environ, start_response):
 	"""a simple led wsgi application"""
 	def index():
 		status = '200 OK'
-		response_headers = [('Content-type', 'text/plain')]
+		response_headers = [('Content-type', 'text/html')]
 		start_response(status, response_headers)
 		return ["please enter xy"]
 		
@@ -50,7 +50,7 @@ def my_app(environ, start_response):
 		status = '200 OK'
 		response_headers = [('Content-type', 'text/plain')]
 		start_response(status, response_headers)
-		return "Sent"
+		return "<img src="http://img1.wikia.nocookie.net/__cb20140227230627/dinosaurs/images/c/c9/Ls_shutterstock_105146921_free.jpg">"
 		
 	# http://192.168.1.109:8123/motor?
 	def motor(environ, start_response):

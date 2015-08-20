@@ -65,7 +65,8 @@ def my_app(environ, start_response):
 		standy_pin.dir(mraa.DIR_OUT)
 		pwm = mraa.Pwm(3) #arduino 3
 		pwm.enable(True)
-		pwm.write(p/100)
+		print p
+		pwm.write(p/142.85)
 		
 		standy_pin.write(1) #disable standby
 		if dir==1:

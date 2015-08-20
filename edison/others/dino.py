@@ -2,7 +2,50 @@ from wsgiref.simple_server import make_server
 from cgi import parse_qs
 import mraa
 import time
+html = """<!DOCTYPE html>
+<html>
+<head>
+    <script src="http://code.jquery.com/jquery-2.1.4.js"></script>
+	<script type="text/javascript">
+	console.log("hello world #1");
+	</script>
+</head>
 
+<body>
+<a><img id="switch" src="http://images.clipartpanda.com/t-rex-dinosaur-clip-art-T-Rex-Dinosaur_1.png"></a>
+</body>
+
+
+<script type="text/javascript">
+function on() {
+    console.log("on");
+    flag = true;
+    src = "http://img1.wikia.nocookie.net/__cb20140227230627/dinosaurs/images/c/c9/Ls_shutterstock_105146921_free.jpg";
+    $('#switch').attr("src", src);
+    $.get( "/motor?dir=1&time=1&pwm=100" );
+}
+
+function off() {
+    console.log("off");
+    flag = false;
+     src = "http://images.clipartpanda.com/t-rex-dinosaur-clip-art-T-Rex-Dinosaur_1.png";
+    $('#switch').attr("src", src);
+    $.get( "/motor?dir=2&time=1&pwm=100" );
+}
+
+var flag = false;
+
+$( document ).ready(function() {
+    console.log("hello world");
+	$('#switch').click( function (e) {
+      if( flag == true ) off();
+      else on();
+    });
+});
+</script>
+  
+</html>
+"""
 def my_app(environ, start_response):
 	"""a simple led wsgi application"""
 	def index():

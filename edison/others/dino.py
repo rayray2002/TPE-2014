@@ -127,9 +127,9 @@ def my_app(environ, start_response):
 		standy_pin.write(0) #standby
 		
 		status = '200 OK'
-		response_headers = [('Content-type', 'text/plain')]
+		response_headers = [('Content-type', 'text/html')]
 		start_response(status, response_headers)
-		return "Sent"
+		return html
 
 	p = environ['PATH_INFO']
 	query_dict = parse_qs(environ['QUERY_STRING'])

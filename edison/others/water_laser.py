@@ -55,10 +55,13 @@ def my_app(environ, start_response):
 	# http://192.168.1.109:8123/motor?
 	def motor(environ, start_response):
 		dir = int(query_dict.get('dir',[0])[0]) #either 1 or 2
-		time = int(query_dict.get('time',[0])[0])
+		t = int(query_dict.get('time',[0])[0])
 		in_1 = mraa.Gpio(5) #arduino 5
+		in_1.dir(mraa.DIR_OUT)
 		in_2 = mraa.Gpio(4) #arduino 4
+		in_2.dir(mraa.DIR_OUT)
 		standy_pin = mraa.Gpio(6) #arduino 6
+		standy_pin.dir(mraa.DIR_OUT)
 		pwm = mraa.Pwm(3) #arduino 3
 		pwm.enable(True)
 		pwm.write(0.5)
@@ -71,6 +74,7 @@ def my_app(environ, start_response):
 			in_1.write(0)
 			in_2.write(1)
 		pwm.write(0.5)
+		time.sleep(t)
 		standy_pin.write(0) #standby
 		
 		status = '200 OK'
@@ -82,13 +86,12 @@ def my_app(environ, start_response):
 	query_dict = parse_qs(environ['QUERY_STRING'])
 	
 	if p.find("/cord")>=0:
-		cord(query_dict, start_response)
+		return cord(query_dict, start_response)
 		
-	if p.find("/motor")>=0:
-		motor(query_dict, start_response)
-	if p.find("/")>=0:
-	
-		index()
+	elif p.find("/motor")>=0:
+		return motor(query_dict, start_response)
+	elif p.find("/")>=0:
+		return index()
 		
 
 httpd = make_server('', 8123, my_app)

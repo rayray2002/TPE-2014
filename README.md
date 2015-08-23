@@ -4,7 +4,13 @@ TODO:
 1. poster - 3 pages, architecture, include ev3dev, edison, arduino
 2. software - pyserial, remote control,
 3. hardware 
-4.picture  流程圖
+
+----
+picture  
+MINDMAP - 方法論
+硬體架構圖
+系統架構圖
+功能流程圖
 電路圖 - ev3
 
 rov照片
@@ -20,18 +26,23 @@ intel edison
   webserver
   wsgi
   javascript, html
+  
+  
 結構
-pvc管包壓克力管
+　　樂高, 3D print, 氣密, 電線安排, pvc管(切,合)？
+  pvc管包壓克力管
 
-遇到的問題
+  遇到的問題
 
-無法固定
-空間不足
+  無法固定
+  空間不足
 
 解決
 
-用3dprinter印基座固定
-用洞洞板把麵包版上的元件焊得更小
-把板子換成arduino pro mini
+  用3dprinter印基座固定
+  用洞洞板把麵包版上的元件焊得更小
+  把板子換成arduino pro mini
+  
+
 
 

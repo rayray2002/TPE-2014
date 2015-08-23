@@ -12,12 +12,13 @@ intel edison照片
 遙控介面圖
 
 重點:
-ev3 pin
-7407
-uart
-i2c
-mpu9150
+pwm, rc ppm, ev3 pin, 電壓和電流
+7407 - 遇到的問題
+uart, between ev3 edison, ev3 arduino pro mini
+i2c, mpu9150 遇到 RTIMU
 intel edison
-webserver
-wsgi
+  webserver
+  wsgi
+  javascript, html
 結構
+

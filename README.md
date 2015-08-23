@@ -21,4 +21,17 @@ intel edison
   wsgi
   javascript, html
 結構
+pvc管包壓克力管
+
+遇到的問題
+
+無法固定
+空間不足
+
+解決
+
+用3dprinter印基座固定
+用洞洞板把麵包版上的元件焊得更小
+把板子換成arduino pro mini
+
 

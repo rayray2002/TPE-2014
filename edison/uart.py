@@ -58,6 +58,7 @@ class SerialManager(Thread):
 					out_buffer = self.out_queue.get_nowait()
 					self.ser.write(out_buffer)
 				except Empty, e:
+					pass
 					#print type(e), e	
 		except (KeyboardInterrupt, SystemExit): pass
 		self.ser.close()

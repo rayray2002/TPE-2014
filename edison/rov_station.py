@@ -23,7 +23,7 @@ def my_app(environ, start_response):
 		d = parse_qs(environ['QUERY_STRING'])
 		
 		state = d.get('state',[0])[0]
-		print state
+		print state, smgr.read()
 		smgr.write(state)
 		"""
 		#laser_pin = mraa.Gpio(8)

@@ -24,7 +24,8 @@ def my_app(environ, start_response):
 		
 		state = d.get('state',[0])[0]
 		print state, smgr.read()
-		smgr.write(state)
+		while(1):
+			smgr.write(state)
 		"""
 		#laser_pin = mraa.Gpio(8)
 		#laser_pin.dir(mraa.DIR_OUT)

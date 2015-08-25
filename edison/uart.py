@@ -50,13 +50,15 @@ class SerialManager(Thread):
 				if self.sleeptime: time.sleep(self.sleeptime)
 				in_data = self.ser.read(self.read_num_bytes)
 				if in_data:
+					print 'rx', len(self.read_buffer)
 					self.read_buffer += in_data
 					self.read_flag = True
 				try:
+					print 'tx'
 					out_buffer = self.out_queue.get_nowait()
 					self.ser.write(out_buffer)
-				except Empty:
-					pass
+				except Empty, e:
+					print type(e), e	
 		except (KeyboardInterrupt, SystemExit): pass
 		self.ser.close()
 		
@@ -80,9 +82,10 @@ def main():
 		while True:
 			count += 1
 			print '#1', count
-			s1.write( str(count) )
+			s1.write( 'a' + str(count) + '\n')
 			data = s1.read()
 			print(repr(data))
+			time.sleep(0.5)
 	except KeyboardInterrupt:
 		s1.close()
 	finally:

@@ -18,6 +18,12 @@ html = """
 <body>
 <b id="forward">Forward </b> <br>
 <b id="backward">Backward </b> <br>
+<b id="right">Right </b> <br>
+<b id="left">Left </b> <br>
+<b id="up">Up </b> <br>
+<b id="down">Down </b> <br>
+<b id="fast">Fast </b> <br>
+<b id="slow">Slow </b> <br>
 <b id="stop">Stop </b> <br>
 </body>
 
@@ -38,6 +44,36 @@ function stop() {
     $.get( "/control?state=s" );
 }
 
+function right() {
+    console.log("right");
+    $.get( "/control?state=r" );
+}
+
+function left() {
+    console.log("left");
+    $.get( "/control?state=l" );
+}
+
+function up() {
+    console.log("up");
+    $.get( "/control?state=u" );
+}
+
+function down() {
+    console.log("down");
+    $.get( "/control?state=d" );
+}
+
+function fast() {
+    console.log("fast");
+    $.get( "/control?state=1" );
+}
+
+function slow() {
+    console.log("slow");
+    $.get( "/control?state=2" );
+}
+
 $( document ).ready(function() {
     console.log("hello world");
 	$('#forward').click( function (e) {
@@ -50,6 +86,30 @@ $( document ).ready(function() {
     
     $('#stop').click( function (e) {
         stop()
+    });
+    
+    $('#up').click( function (e) {
+        up()
+    });
+    
+    $('#down').click( function (e) {
+        down()
+    });
+    
+    $('#right').click( function (e) {
+        right()
+    });
+    
+    $('#left').click( function (e) {
+        left()
+    });
+    
+    $('#fast').click( function (e) {
+        fast()
+    });
+    
+    $('#slow').click( function (e) {
+        slow()
     });
 });
 </script>

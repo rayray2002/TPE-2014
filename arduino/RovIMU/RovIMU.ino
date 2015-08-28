@@ -18,10 +18,6 @@ Rov rov;
 
 //  SERIAL_PORT_SPEED defines the speed to use for the debug serial port
 
-#define  SERIAL_PORT_SPEED  38400
-
-#define DEBUG 0
-#define ROV 1
 
 unsigned long lastDisplay;
 unsigned long lastRate;
@@ -50,7 +46,7 @@ void initIMU()
   lastDisplay = lastRate = millis();
   sampleCount = 0;
 
-  fusion.setSlerpPower(0.02); //0 means that only gyros are used, 1 means that only accels/compass are used
+  fusion.setSlerpPower(0.1); //0 means that only gyros are used, 1 means that only accels/compass are used
   fusion.setGyroEnable(true);
   fusion.setAccelEnable(true);
   fusion.setCompassEnable(true);
@@ -64,10 +60,10 @@ void setup()
     rov.init();
 }
 
-void sendGyroData() {
-    if(ROV) {
+void sendGyroData(RTVector3 p ) {
+    if(EV3_COMM) {
               Serial.write( 'a' );
-              RTVector3 p = fusion.getFusionPose();
+              //RTVector3 p = fusion.getFusionPose();
               short x = p.x() * RTMATH_RAD_TO_DEGREE * 100;
               Serial.write( (byte)x );
               Serial.write( (byte)(x >> 8) );
@@ -101,14 +97,23 @@ void loop()
     unsigned long now = millis();
     unsigned long delta;
     int loopCount = 1;
+    
+    rov.setHeading(90.0f);
+    rov.forward(0.12f);
+    rov.up(0.12f);
+    
   
     while (imu->IMURead()) {                                // get the latest data if ready yet
         // this flushes remaining data in case we are falling behind
-        if (++loopCount >= 10)
-            continue;
+        if (++loopCount >= 10) continue;
         fusion.newIMUData(imu->getGyro(), imu->getAccel(), imu->getCompass(), imu->getTimestamp());
-        sendGyroData();
-        delay(50);
+        RTVector3 pose = fusion.getFusionPose();
+        
+        // pitch, roll, yaw, z ->pitch, y->roll, x->yaw,
+        rov.reportIMU(pose.x() * RTMATH_RAD_TO_DEGREE, pose.y() * RTMATH_RAD_TO_DEGREE, pose.z() * RTMATH_RAD_TO_DEGREE);
+        rov.step();
+        sendGyroData(pose);
+        delay(100);
        
     }
 }

@@ -68,7 +68,7 @@
 //
 //  Uncomment the one required
 
-#define RTIMU_XNORTH_YEAST              0                   // this is the default identity matrix
+//#define RTIMU_XNORTH_YEAST              0                   // this is the default identity matrix
 //#define RTIMU_XEAST_YSOUTH              1
 //#define RTIMU_XSOUTH_YWEST              2
 //#define RTIMU_XWEST_YNORTH              3
@@ -77,7 +77,7 @@
 //#define RTIMU_XSOUTH_YEAST              6
 //#define RTIMU_XWEST_YSOUTH              7
 //#define RTIMU_XUP_YNORTH                8
-//#define RTIMU_XUP_YEAST                 9
+#define RTIMU_XUP_YEAST                   9
 //#define RTIMU_XUP_YSOUTH                10
 //#define RTIMU_XUP_YWEST                 11
 //#define RTIMU_XDOWN_YNORTH              12

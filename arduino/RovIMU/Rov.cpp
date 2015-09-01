@@ -12,7 +12,7 @@ void Rov::init() {
   motors[0].attach(3);
   motors[1].attach(5);
   motors[2].attach(6);
-  motors[3].attach(10); 
+  motors[3].attach(9); 
   
   for(int i=0; i<NO_SERVO; i++ )
 	  motorValues[i] = 0.0;
@@ -76,6 +76,10 @@ void Rov::step(){
   float pitchDiff = pitch - 0;
   pitchDiff /= 360.0;
  
+  //pitch
+  float rollDiff = pitch - 0;
+  rollDiff /= 360.0;
+  
   //yaw
   float yawDiff = headingRequested - yaw;
   if(yawDiff>180) 
@@ -85,24 +89,14 @@ void Rov::step(){
   yawDiff /= 360.0;
 
 #if DEBUG
-  Serial.print("pow:");
-  Serial.print(powerRequested);
-  Serial.print("\t");
-  Serial.print("head_req:");
-  Serial.print(headingRequested);
-  Serial.print("\t");
-  Serial.print("pitch:");
-  Serial.print(pitch);
-  Serial.print("\t");
-  Serial.print("pitchDiff:");
-  Serial.print(pitchDiff);
-  Serial.print("\t");
-  Serial.print("yaw:");
-  Serial.print(yaw);
-  Serial.print("\t");
-  Serial.print("yawDiff:");
-  Serial.print(yawDiff);
-  Serial.print("\t");
+  Serial.print("pow:"); Serial.print(powerRequested); Serial.print("\t");
+  Serial.print("head_req:"); Serial.print(headingRequested); Serial.print("\t");
+  Serial.print("pitch:"); Serial.print(pitch); Serial.print("\t");
+  Serial.print("pitchDiff:"); Serial.print(pitchDiff); Serial.print("\t");
+  Serial.print("roll:"); Serial.print(roll); Serial.print("\t");
+  Serial.print("rollDiff:"); Serial.print(rollDiff); Serial.print("\t");
+  Serial.print("yaw:"); Serial.print(yaw); Serial.print("\t");
+  Serial.print("yawDiff:"); Serial.print(yawDiff); Serial.print("\t");
   Serial.println();
   //}
 #endif
@@ -114,9 +108,11 @@ void Rov::step(){
   
   
   //deal with pitch and roll
-  diveRequested = 0;
-  motorValues[MOTOR_LU] = diveRequested + pitchDiff * PITCH_KP;
-  motorValues[MOTOR_RU] = diveRequested + pitchDiff * PITCH_KP;
+  diveRequested = 0; //for test
+  pitchDiff = 0;//for test
+  //rollDiff = 0;
+  motorValues[MOTOR_LU] = diveRequested + pitchDiff * PITCH_KP + rollDiff * ROLL_KP;
+  motorValues[MOTOR_RU] = diveRequested + pitchDiff * PITCH_KP + rollDiff * ROLL_KP * -1;
   
   //TODO: handle reverse
   

@@ -14,6 +14,7 @@ def my_app(environ, start_response):
 	def getbit(data, bit):
 		return (data & (1<<(7 - bit))) >> 7 - bit
 		
+	# http://192.168.1.22:8123/cord?x=12&y=05	
 	def cord(query_dict, start_response):
 		x = int(query_dict.get('x',[0])[0])
 		y = int(query_dict.get('y',[0])[0])
@@ -22,7 +23,7 @@ def my_app(environ, start_response):
 		laser_pin = mraa.Gpio(8)
 		laser_pin.dir(mraa.DIR_OUT)
 		delay = 0.3 #0.3 * 17 + 2
-		for i in range(5):
+		for i in range(3):
 			print '='*10, i
 			print "start bit"
 			laser_pin.write(1)
@@ -52,7 +53,7 @@ def my_app(environ, start_response):
 		start_response(status, response_headers)
 		return "sent"
 		
-	# http://192.168.1.109:8123/motor?
+	# http://192.168.1.22:8123/motor?dir=1&time=10&p=0.5
 	def motor(environ, start_response):
 		dir = int(query_dict.get('dir',[0])[0]) #either 1 or 2
 		t = int(query_dict.get('time',[0])[0])

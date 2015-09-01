@@ -17,6 +17,7 @@
 #define NO_SERVO 4
 
 #define PITCH_KP  1.0
+#define ROLL_KP 10.0
 #define YAW_KP   0.3
 
 /*

@@ -3,9 +3,15 @@ from cgi import parse_qs
 #import mraa
 import time
 from uart import SerialManager
+import serial
 
-smgr = SerialManager('/dev/ttyMFD1')
-smgr.start()
+smgr = None
+try:
+	smgr = SerialManager('/dev/ttyMFD1')
+	smgr.start()
+except serial.serialutil.SerialException:
+	pass
+	
 html = """
 <html>
 <head>
@@ -123,15 +129,22 @@ def my_app(environ, start_response):
 		response_headers = [('Content-type', 'text/html')]
 		start_response(status, response_headers)
 		return html
+		
 	p = environ['PATH_INFO']
+	print 'path', p
+	
 	if p.find("/control")>=0:
 		d = parse_qs(environ['QUERY_STRING'])
 		state = d.get('state',[0])[0]
+		print 'state', state
 		
-		smgr.write('a' + state + '\n')
-		print repr(smgr.read())
-			
-	return index()
+		if smgr:
+			smgr.write('a' + state + '\n')
+			print repr(smgr.read()) 
+		start_response('200 OK', [('Content-type', 'text/html')])
+		return ""
+	else:	
+		return index()
 
 httpd = make_server('', 8000, my_app)
 print "Serving on port 8000..."

@@ -30,9 +30,9 @@
 //  IMU enable defs - only one should be enabled, the rest commented out
 
 //#define MPU9150_68                      // MPU9150 at address 0x68
-#define MPU9150_69                      // MPU9150 at address 0x69
+//#define MPU9150_69                      // MPU9150 at address 0x69
 //#define MPU9250_68                      // MPU9250 at address 0x68
-//#define MPU9250_69                      // MPU9250 at address 0x69
+#define MPU9250_69                      // MPU9250 at address 0x69
 //#define LSM9DS0_6a                      // LSM9DS0 at address 0x6a
 //#define LSM9DS0_6b                      // LSM9DS0 at address 0x6b
 //#define GD20HM303D_6a                   // GD20H + M303D at address 0x6a
@@ -77,9 +77,9 @@
 //#define RTIMU_XSOUTH_YEAST              6
 //#define RTIMU_XWEST_YSOUTH              7
 //#define RTIMU_XUP_YNORTH                8
-#define RTIMU_XUP_YEAST                   9
-//#define RTIMU_XUP_YSOUTH                10
-//#define RTIMU_XUP_YWEST                 11
+//#define RTIMU_XUP_YEAST                 9
+//#define RTIMU_XUP_YSOUTH                  10
+#define RTIMU_XUP_YWEST                 11
 //#define RTIMU_XDOWN_YNORTH              12
 //#define RTIMU_XDOWN_YEAST               13
 //#define RTIMU_XDOWN_YSOUTH              14

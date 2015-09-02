@@ -23,41 +23,36 @@ unsigned long lastDisplay;
 unsigned long lastRate;
 int sampleCount;
 
-void initIMU() 
-{
-  int errcode;
-  Wire.begin();
-  imu = RTIMU::createIMU(&settings);                        // create the imu object
-  
-  if(DEBUG) Serial.print("ArduinoIMU starting using device ");
-  if(DEBUG) Serial.println(imu->IMUName());
-  if ((errcode = imu->IMUInit()) < 0) {
-    if(DEBUG) {
-      Serial.print("Failed to init IMU: "); 
-      Serial.println(errcode);
-    }
-  }
-  
-  if (imu->getCalibrationValid())
-    if(DEBUG) Serial.println("Using compass calibration");
-  else
-    if(DEBUG) Serial.println("No valid compass calibration data");
-
-  lastDisplay = lastRate = millis();
-  sampleCount = 0;
-
-  fusion.setSlerpPower(0.1); //0 means that only gyros are used, 1 means that only accels/compass are used
-  fusion.setGyroEnable(true);
-  fusion.setAccelEnable(true);
-  fusion.setCompassEnable(true);
-}
-
 void setup() 
-{ 
-    Serial.begin(SERIAL_PORT_SPEED);  
-    initIMU();
+{
     rov = Rov();
     rov.init();
+    
+    int errcode;
+    Serial.begin(SERIAL_PORT_SPEED);
+    Wire.begin();
+    imu = RTIMU::createIMU(&settings);                        // create the imu object
+  
+    if(DEBUG) Serial.print("ArduinoIMU starting using device ");
+    if(DEBUG) Serial.println(imu->IMUName());
+    if ((errcode = imu->IMUInit()) < 0) {
+        if(DEBUG) {
+            Serial.print("Failed to init IMU: "); 
+            Serial.println(errcode);
+        }
+    }
+  
+    if (imu->getCalibrationValid())
+        if(DEBUG) Serial.println("Using compass calibration");
+    else
+        if(DEBUG) Serial.println("No valid compass calibration data");
+    // Slerp power controls the fusion and can be between 0 and 1
+    // 0 means that only gyros are used, 1 means that only accels/compass are used
+    // In-between gives the fusion mix.
+    fusion.setSlerpPower(0.1);
+    fusion.setGyroEnable(true);
+    fusion.setAccelEnable(true);
+    fusion.setCompassEnable(true);
 }
 
 void sendGyroData(RTVector3 p ) {
@@ -69,7 +64,7 @@ void sendGyroData(RTVector3 p ) {
               Serial.write( (byte)(x >> 8) );
               short y = p.y() * RTMATH_RAD_TO_DEGREE * 100;
               Serial.write( (byte)y );
-                Serial.write( (byte)(y >> 8) );
+               Serial.write( (byte)(y >> 8) );
               short z = p.z() * RTMATH_RAD_TO_DEGREE * 100;
               Serial.write( (byte)z );
               Serial.write( (byte)(z >> 8) );
@@ -94,29 +89,27 @@ void loop()
   //output motors
   //report gyro
   
-    unsigned long now = millis();
+    //unsigned long now = millis();
     unsigned long delta;
     int loopCount = 1;
+    RTVector3 pose;
     
-    rov.setHeading(90.0f);
+    rov.setHeading(70.0f);
     rov.forward(0.12f);
-    rov.up(0.12f);
-    
+    rov.up(0.5f);
   
     while (imu->IMURead()) {                                // get the latest data if ready yet
         // this flushes remaining data in case we are falling behind
-        if (++loopCount >= 10) continue;
+        if (++loopCount >= 20) continue;
         fusion.newIMUData(imu->getGyro(), imu->getAccel(), imu->getCompass(), imu->getTimestamp());
-        RTVector3 pose = fusion.getFusionPose();
-        
-        // pitch, roll, yaw, z ->pitch, y->roll, x->yaw,
+        pose = fusion.getFusionPose();
         rov.reportIMU(pose.x() * RTMATH_RAD_TO_DEGREE, pose.y() * RTMATH_RAD_TO_DEGREE, pose.z() * RTMATH_RAD_TO_DEGREE);
-        rov.step();
-        sendGyroData(pose);
-        delay(100);
-       
     }
+    rov.step();
+    sendGyroData(pose);
+    //delay(100);
 }
+
 
 /*
         if ((now - lastDisplay) >= DISPLAY_INTERVAL) {

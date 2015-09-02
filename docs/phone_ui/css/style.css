@@ -1,0 +1,16 @@
+.vcenter {
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
+}
+
+.row > div {
+  height: 300px;
+}
+
+.equal, .equal > div[class*='col-'] {  
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    flex:1 0 auto;
+}

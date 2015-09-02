@@ -16,9 +16,7 @@
 #define MOTOR_RU 3
 #define NO_SERVO 4
 
-#define PITCH_KP  1.0
-#define ROLL_KP 10.0
-#define YAW_KP   0.3
+
 
 /*
 int data[NO_SERVO][8] = {
@@ -44,7 +42,7 @@ class Rov{
     void step(); 
     
   private:
-    void writeMicroseconds(int ms);
+    void writeMicrosecondsForAll(int ms);
     float headingRequested;
     float powerRequested;
     float diveRequested;

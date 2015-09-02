@@ -84,7 +84,7 @@ RTFLOAT RTIMU::m_axisRotation[9] = {0, 0, 1, 0, 1, 0, -1, 0, 0};
 #endif
 
 #ifdef RTIMU_XUP_YSOUTH
-    {0, -1, 0, 0, 0, 1, -1, 0, 0};
+RTFLOAT RTIMU::m_axisRotation[9] = {0, -1, 0, 0, 0, 1, -1, 0, 0};
 #endif
 
 #ifdef RTIMU_XUP_YWEST

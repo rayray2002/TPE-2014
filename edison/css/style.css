@@ -1,0 +1,58 @@
+.vcenter {
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
+}
+
+.row > div {
+  height: 300px;
+}
+
+.divTable
+{
+  display:  table;
+  width:auto;
+  background-color:#eee;
+  /* border:1px solid  #666666; */
+  border-spacing:5px;/*cellspacing:poor IE support for  this*/
+  /* border-collapse:separate;*/
+}
+
+.divRow
+{
+  display:table-row;
+  width:auto;
+}
+
+.divCell
+{
+  float:left;/*fix for  buggy browsers*/
+  display:table-column;
+  width:200px;
+  background-color:#eee;
+}
+
+div
+{
+    display:table;
+}
+
+img
+{
+	display: block;
+	display:block;
+    margin:auto;
+	vertical-align: middle;
+}
+
+.slider-vertical  {
+	margin: 20px;
+}
+.powSlider .slider-selection {
+	background: #BABABA;
+}
+
+#deepSlider .slider-selection {
+	background: #BABABA;
+}
+

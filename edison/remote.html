@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>水下遙控載具ROV</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="css/bootstrap-slider.css" rel="stylesheet">
+	<link href="css/style.css" rel="stylesheet">
+	
+	<script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+	<script src="js/bootstrap-slider.min.js"></script>
+
+
+  </head>
+  <body>
+  
+  <h1>水下遙控載具ROV</h1>
+  
+	<div class="container-fixed top20">
+		<table style="width:100%">
+		  <tr>
+			<td><img src="images/up.png"/></td>
+			<td><img src="images/forward.png"/></td> 
+			<td><img src="images/camera_on.png"/></td>
+			<td>roll,pitch,raw</td>
+		  </tr>
+		  <tr>
+			<td><img src="images/left.png"/></td>
+			<td><img src="images/rov.png"/></td> 
+			<td><img src="images/right.png"/></td>
+			<td><input id="powSlider" data-slider-id='mySlider' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="50" data-slider-orientation="vertical"/>
+			<input id="deepSlider" data-slider-id='mySlider2' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="50" data-slider-orientation="vertical"/></td>
+		  </tr>
+		  <tr>
+			<td><img src="images/down.png"/></td>
+			<td><img src="images/back.png"/></td> 
+			<td><img src="images/light_on.png"/></td>
+			<td>dd
+			</td>
+		  </tr>
+		</table>
+	</div> <!-- /container -->
+
+
+    
+	<script LANGUAGE="javascript">
+		$('#powSlider').slider({
+			formatter: function(value) {
+				return 'Current value: ' + value;
+			}
+		});
+		$('#deepSlider').slider({
+			formatter: function(value) {
+				return 'Current value: ' + value;
+			}
+		});
+	</script>
+
+	</div>
+  </body>
+</html>

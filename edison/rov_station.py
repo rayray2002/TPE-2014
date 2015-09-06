@@ -127,6 +127,7 @@ def my_app(environ, start_response):
 	def index():
 		status = '200 OK'
 		response_headers = [('Content-type', 'text/html')]
+		html = open('remote.html').read()
 		start_response(status, response_headers)
 		return html
 		
@@ -143,6 +144,22 @@ def my_app(environ, start_response):
 			print repr(smgr.read()) 
 		start_response('200 OK', [('Content-type', 'text/html')])
 		return ""
+		
+	elif p.find("/js") >= 0:
+		content = open('./js/' + p.split('/')[-1] ).read()
+		start_response('200 OK', [('Content-type', 'text/javascript')])
+		return content
+		
+	elif p.find("/css") >= 0:
+		content = open('./css/' + p.split('/')[-1] ).read()
+		start_response('200 OK', [('Content-type', 'text/css')])
+		return content
+		
+	elif p.find("/images") >= 0:
+		content = open('./images/' + p.split('/')[-1], 'rb' ).read()
+		start_response('200 OK', [('Content-type', 'image/png')])
+		return content
+		
 	else:	
 		return index()
 

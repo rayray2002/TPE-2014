@@ -9,9 +9,13 @@ try:
 except ImportError:
     from Queue import Empty, Full
 	
+
+
 class SerialManager(Thread):
 	def __init__(self, device):
 		super(SerialManager, self).__init__()
+		self.start_token = 'a'
+		self.end_token = '\n'
 		self.baudrate = 38400
 		self.in_queue = Queue()
 		self.out_queue = Queue()
@@ -23,26 +27,27 @@ class SerialManager(Thread):
 		self.read_buffer = ''
 		self.read_flag = False
 		
-	def read(self, start_token='a', end_token = '\n'):
+	def read(self):
 		ret = []
 		if self.read_flag:
 			while True:
 				spos = epos = 0
-				if start_token:
-					spos = self.read_buffer.find(start_token)
-					if spos<0: spos = 0
-				if end_token:
-					epos = self.read_buffer.find(end_token, spos)
+				spos = self.read_buffer.find(self.start_token)
+				if spos<0: spos = 0
+				epos = self.read_buffer.find(self.end_token, spos)
 				if epos > spos:
 					data = self.read_buffer[spos:epos]
 					self.read_buffer = self.read_buffer[epos:]
+					if data.endswith(self.end_token): data = data[:-1]
+					if data.startswith(self.start_token): data = data[1:]
 					ret.append( data )
 				else: break
 			self.read_flag = False
 		return ret
 		
 	def write(self, data):
-		self.out_queue.put( data )
+		print type(data), data
+		self.out_queue.put( self.start_token + data + self.end_token )
 		
 	def run(self):
 		try:
@@ -65,9 +70,47 @@ class SerialManager(Thread):
 		
 	def close(self):
 		self.running = False
+		
+class SerialProxy(Thread):
+	def __init__(self, device1, device2):
+		super(SerialProxy, self).__init__()
+		self.running = True
+		self.managers = [] 
+		self.managers.append( SerialManager(device1) )
+		self.managers.append( SerialManager(device2) )
+		self.sleeptime = 0.01
+		for m in self.managers: m.start()
+		
+	def run(self):
+		try:
+			while self.running:
+				if self.sleeptime: time.sleep(self.sleeptime)
+				datas = self.managers[0].read()
+				if datas:
+					for data in datas:
+						print 'data0', type(data), data
+						self.managers[1].write(data)
+				datas = self.managers[1].read()
+				if datas:
+					for data in datas:
+						print 'data1', type(data), data
+						self.managers[0].write(data)
+		except (KeyboardInterrupt, SystemExit): pass
+		self.close()
+		
+	def close(self):
+		for s in self.managers:
+			s.close()
+		self.running = False
 	
 
-def main():
+def test_proxy():
+	proxy = SerialProxy('COM2', 'COM3')
+	proxy.start()
+	time.sleep(100000)
+	
+	
+def test_serial():
 	import argparse
 	parser = argparse.ArgumentParser(description='A class to manage reading and writing from and to a serial port.')
 	parser.add_argument('device', help='The serial port to use (COM4, /dev/ttyUSB1 or similar).')
@@ -83,7 +126,7 @@ def main():
 		while True:
 			count += 1
 			#print '#1', count
-			s1.write( 'a' + str(count) + '\n')
+			s1.write( str(count) )
 			data = s1.read()
 			#print(repr(data))
 			time.sleep(0.5)
@@ -94,4 +137,4 @@ def main():
 	s1.join()
 
 if __name__ == "__main__":
-	main() 
+	test_proxy() 

@@ -1,21 +1,12 @@
 from uart import SerialManager
 
-#in1 <--> rov station
-#in2 <--> arduino (compass, depth)
-
-class Motor():
-	MOTOR_L = 0
-	MOTOR_R = 1
-	MPTPR_LU = 2
-	MPTPR_RU = 3
+def run_proxy():
+	#TODO: check EV1 S1 and S2 part
+	proxy = SerialProxy('COM2', 'COM3')
+	proxy.start()
 	
-	def __init(self, motor_id):
-		self.id = motor_id
-		if 
-	def power(self, target):
-	def direction(self, cmd):
-class ROV():
-
+	while True:
+		time.sleep(1)
 	
-	def __init__(self):
-		self.motors = [Motor()]
+if __name__ == "__main__":
+	run_proxy()

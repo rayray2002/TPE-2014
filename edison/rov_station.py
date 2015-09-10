@@ -4,124 +4,31 @@ from cgi import parse_qs
 import time
 from uart import SerialManager
 import serial
+import json
+import threading
+import struct
+
+
+import socket
+host = socket.gethostname()
+
+device_status = {}
+device_status['pitch'] = 0
+device_status['roll'] = 0
+device_status['yaw'] = 0
+device_status['light'] = 0
+device_status['camera'] = 0
 
 smgr = None
 try:
-	smgr = SerialManager('/dev/ttyMFD1')
+	if host.lower().find('edison')>=0:
+		smgr = SerialManager('/dev/ttyMFD1')
+	if host.lower().find('eric')>=0:
+		smgr = SerialManager('COM12')
 	smgr.start()
-except serial.serialutil.SerialException:
-	pass
-	
-html = """
-<html>
-<head>
-    <script src="http://code.jquery.com/jquery-2.1.4.js"></script>
-	<script type="text/javascript">
-	console.log("hello world #1");
-	</script>
-</head>
+except serial.serialutil.SerialException, e:
+	print type(e), e
 
-<body>
-<b id="forward">Forward </b> <br>
-<b id="backward">Backward </b> <br>
-<b id="right">Right </b> <br>
-<b id="left">Left </b> <br>
-<b id="up">Up </b> <br>
-<b id="down">Down </b> <br>
-<b id="fast">Fast </b> <br>
-<b id="slow">Slow </b> <br>
-<b id="stop">Stop </b> <br>
-</body>
-
-
-<script type="text/javascript">
-function forward() {
-    console.log("forward");
-    $.get( "/control?state=f" );
-}
-
-function backward() {
-    console.log("backward");
-    $.get( "/control?state=b" );
-}
-
-function stop() {
-    console.log("stop");
-    $.get( "/control?state=s" );
-}
-
-function right() {
-    console.log("right");
-    $.get( "/control?state=r" );
-}
-
-function left() {
-    console.log("left");
-    $.get( "/control?state=l" );
-}
-
-function up() {
-    console.log("up");
-    $.get( "/control?state=u" );
-}
-
-function down() {
-    console.log("down");
-    $.get( "/control?state=d" );
-}
-
-function fast() {
-    console.log("fast");
-    $.get( "/control?state=1" );
-}
-
-function slow() {
-    console.log("slow");
-    $.get( "/control?state=2" );
-}
-
-$( document ).ready(function() {
-    console.log("hello world");
-	$('#forward').click( function (e) {
-        forward()
-    });
-    
-    $('#backward').click( function (e) {
-        backward()
-    });
-    
-    $('#stop').click( function (e) {
-        stop()
-    });
-    
-    $('#up').click( function (e) {
-        up()
-    });
-    
-    $('#down').click( function (e) {
-        down()
-    });
-    
-    $('#right').click( function (e) {
-        right()
-    });
-    
-    $('#left').click( function (e) {
-        left()
-    });
-    
-    $('#fast').click( function (e) {
-        fast()
-    });
-    
-    $('#slow').click( function (e) {
-        slow()
-    });
-});
-</script>
-  
-</html>
-"""
 def my_app(environ, start_response):
 	"""a simple led wsgi application"""
 	def index():
@@ -137,13 +44,32 @@ def my_app(environ, start_response):
 	if p.find("/control")>=0:
 		d = parse_qs(environ['QUERY_STRING'])
 		state = d.get('state',[0])[0]
-		print 'state', state
+		arg = d.get('arg',[0])[0]
+		print 'state', state, 'arg', arg
 		
+		if state == 'light_on':
+			device_status['light'] = 1
+		elif state == 'light_off':
+			device_status['light'] = 0
+		elif state == 'camera_on':
+			device_status['camera'] = 1
+		elif state == 'camera_off':
+			device_status['camera'] = 0
+
 		if smgr:
-			smgr.write('a' + state + '\n')
+			if arg:
+				smgr.write('a' + state + '/' + arg + '\n')
+			else:
+				smgr.write('a' + state + '\n')
 			print repr(smgr.read()) 
 		start_response('200 OK', [('Content-type', 'text/html')])
 		return ""
+		
+	elif p.find("/poll") >= 0:
+		global device_status
+		start_response('200 OK', [('Content-type', 'application/json')])
+		ret  = json.dumps(device_status)
+		return ret
 		
 	elif p.find("/js") >= 0:
 		content = open('./js/' + p.split('/')[-1] ).read()
@@ -152,17 +78,43 @@ def my_app(environ, start_response):
 		
 	elif p.find("/css") >= 0:
 		content = open('./css/' + p.split('/')[-1] ).read()
-		start_response('200 OK', [('Content-type', 'text/css')])
+		start_response('200 OK', [('Content-type',	 'text/css')])
 		return content
 		
 	elif p.find("/images") >= 0:
 		content = open('./images/' + p.split('/')[-1], 'rb' ).read()
 		start_response('200 OK', [('Content-type', 'image/png')])
 		return content
-		
 	else:	
 		return index()
 
-httpd = make_server('', 8000, my_app)
-print "Serving on port 8000..."
-httpd.serve_forever()
+poll_flag = True;
+def poll_status_forever():
+	data = None
+	
+	while poll_flag:
+		data = smgr.read()
+		if data:
+			for d in data:
+				if len(d) == 6:
+					x, y, z = struct.unpack('<hhh', d)
+					if x!=0:
+						#print x/100.0, y/100.0, z/100.0
+						device_status['pitch'] = x/100.0
+						device_status['roll'] = y/100.0
+						device_status['yaw'] = z/100.0
+		time.sleep(0.2)
+		
+t = threading.Thread(target = poll_status_forever)
+t.start()
+
+try:
+	httpd = make_server('', 8000, my_app)
+	print "Serving on port 8000..."
+	httpd.serve_forever()
+except KeyboardInterrupt:
+	pass
+	
+print 'exiting...'
+poll_flag = False
+if smgr: smgr.close()

@@ -6,17 +6,13 @@
 #define  SERIAL_PORT_SPEED  38400
 #define DEBUG 1
 #define DEBUG_MOTOR 1
-#define ROV 1
-#define EV3_COMM 0
-
+//#define EV3_COMM
 
 #define MOTOR_L 0
 #define MOTOR_R 1
 #define MOTOR_LU 2
 #define MOTOR_RU 3
 #define NO_SERVO 4
-
-
 
 /*
 int data[NO_SERVO][8] = {
@@ -32,14 +28,19 @@ class Rov{
     Rov();
     void init();
     void setHeading(float heading); // 0~360
+    float getHeading(); 
     void setDepth(float depth); //0 ~ 200M
+    void setPower(float power); //0 ~ 100
     void reportIMU(float pitch, float roll, float yaw);
-    void forward(float power);
-    void backward(float power);
-    void up(float power);
-    void down(float power);
+    void forward();
+    void backward();
+    void up();
+    void down();
     void stop();
     void step(); 
+    float getRoll();
+    float getPitch();
+    float getYaw(); 
     
   private:
     void writeMicrosecondsForAll(int ms);
@@ -47,7 +48,12 @@ class Rov{
     float powerRequested;
     float diveRequested;
     float pitch;
-    float roll;float yaw;
+    float roll;
+    float yaw;
+    float pitch_bias;
+    float roll_bias;
+    float yaw_bias;
+    float power;
     float motorValues[4];
     Servo motors[4];
 };

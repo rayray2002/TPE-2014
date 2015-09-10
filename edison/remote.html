@@ -14,8 +14,7 @@
 	<script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
 	<script src="js/bootstrap-slider.min.js"></script>
-
-
+	<script src="js/script.js"></script>
   </head>
   <body>
   
@@ -24,22 +23,22 @@
 	<div class="container-fixed top20">
 		<table style="width:100%">
 		  <tr>
-			<td><img src="images/up.png"/></td>
-			<td><img src="images/forward.png"/></td> 
-			<td><img src="images/camera_on.png"/></td>
+			<td id="up"><img src="images/up.png"/></td>
+			<td id="forward"><img src="images/forward.png"/></td> 
+			<td id="camera"><img src="images/camera_on.png"/></td>
 			<td>roll,pitch,raw</td>
 		  </tr>
 		  <tr>
-			<td><img src="images/left.png"/></td>
-			<td><img src="images/rov.png"/></td> 
-			<td><img src="images/right.png"/></td>
+			<td id="left"><img src="images/left.png"/></td>
+			<td id="center"><img src="images/rov.png"/></td> 
+			<td id="right"><img src="images/right.png"/></td>
 			<td><input id="powSlider" data-slider-id='mySlider' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="50" data-slider-orientation="vertical"/>
 			<input id="deepSlider" data-slider-id='mySlider2' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="50" data-slider-orientation="vertical"/></td>
 		  </tr>
 		  <tr>
-			<td><img src="images/down.png"/></td>
-			<td><img src="images/back.png"/></td> 
-			<td><img src="images/light_on.png"/></td>
+			<td id="down"><img src="images/down.png"/></td>
+			<td id="backward"><img src="images/back.png"/></td> 
+			<td id="light"><img src="images/light_off.png"/></td>
 			<td>dd
 			</td>
 		  </tr>
@@ -49,16 +48,83 @@
 
     
 	<script LANGUAGE="javascript">
-		$('#powSlider').slider({
-			formatter: function(value) {
-				return 'Current value: ' + value;
-			}
-		});
-		$('#deepSlider').slider({
-			formatter: function(value) {
-				return 'Current value: ' + value;
-			}
-		});
+		var startPos;
+		var endPos;
+		
+		$( document ).ready(function() {
+		
+			$('#powSlider').slider({
+				formatter: function(value) {
+					return '馬力: ' + value;
+				}
+			});
+			
+			
+			$("#powSlider").slider().on('slideStart', function(ev){
+				console.log("slideStart");
+				startPos = $("#powSlider").data('slider').getValue();
+			});
+			
+			$("#powSlider").slider().on("slideStop", function(event, ui) {
+				endPos = $("#powSlider").data('slider').getValue();
+				console.log("slider slideStop");
+
+				if (startPos != endPos) {
+					console.log("slider change");
+					power(endPos);
+				}
+				startPos = endPos;
+			});
+			
+			$('#deepSlider').slider({
+				formatter: function(value) {
+					return '深度: ' + value;
+				}
+			});
+		
+			$('#forward').click( function (e) {
+				forward();
+			});
+			
+			$('#backward').click( function (e) {
+				backward();
+			});
+			
+			$('#stop').click( function (e) {
+				stop();
+			});
+			
+			$('#up').click( function (e) {
+				up();
+			});
+			
+			$('#down').click( function (e) {
+				down();
+			});
+			
+			$('#right').click( function (e) {
+				right();
+			});
+			
+			$('#left').click( function (e) {
+				left();
+			});
+			
+			$('#fast').click( function (e) {
+				fast();
+			});
+			
+			$('#slow').click( function (e) {
+				slow();
+			});
+			$('#camera').click( function (e) {
+				camera();
+			});
+			$('#light').click( function (e) {
+				light();
+			});
+			init();
+	});
 	</script>
 
 	</div>

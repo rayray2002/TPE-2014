@@ -13,24 +13,26 @@ void Rov::init() {
   motors[1].attach(9); //R
   motors[2].attach(3); //LU
   motors[3].attach(5); //RU
-  
+  pitch_bias = 0.0f;
+  roll_bias = 0.0f;
+  yaw_bias = 0.0f;
   for(int i=0; i<NO_SERVO; i++ )
 	  motorValues[i] = 0.0;
 
 #if 1
-  Serial.println("ESC calibrate start");
+  if(DEBUG_MOTOR) Serial.println("ESC calibrate start");
   writeMicrosecondsForAll(1000);
   delay(1000);
-  Serial.println("ESC calibrate #2");
+  if(DEBUG_MOTOR) Serial.println("ESC calibrate #2");
   writeMicrosecondsForAll(2000);
   delay(1000);
-  Serial.println("ESC calibrate #3");
+  if(DEBUG_MOTOR) Serial.println("ESC calibrate #3");
   writeMicrosecondsForAll(1000);
   delay(1000);
-  Serial.println("ESC calibrate #4");
+  if(DEBUG_MOTOR) Serial.println("ESC calibrate #4");
   writeMicrosecondsForAll(1500);
   delay(2500); //hear 3 beeps to enter RC neturel mode 
-  Serial.println("ESC calibrate end");
+  if(DEBUG_MOTOR) Serial.println("ESC calibrate end");
 #endif
 }
 
@@ -44,48 +46,68 @@ void Rov::writeMicrosecondsForAll(int s) {
 
 void Rov::reportIMU(float pitch_s, float roll_s, float yaw_s)
 {
+  if(pitch_bias==0 && pitch_bias==0 && pitch_bias==0) {
+     pitch_bias = pitch_s;
+     roll_bias = roll_s;
+     yaw_bias = yaw_s;
+  }
   pitch = pitch_s;
   roll = roll_s;
-  yaw = yaw_s * -1;
+  yaw = yaw_s;
 }
 void Rov::setHeading(float headReq){
   headingRequested = headReq;
 } 
+float Rov::getHeading(){
+  return yaw;
+} 
 void Rov::setDepth(float depth){
-  
+  diveRequested = depth;
 } 
-void Rov::forward(float power){
-  powerRequested = power;
+void Rov::setPower(float p){
+  powerRequested = p;
+} 
+void Rov::forward(){
+  power = powerRequested;
 }
-void Rov::backward(float power){
-  powerRequested = power;
+void Rov::backward(){
+  power = powerRequested*-1;
 } 
-void Rov::up(float power){
-  diveRequested = power;
+void Rov::up(){
+  //power = powerRequested;
+  diveRequested = 0.5f;
 } 
-void Rov::down(float power){
-  diveRequested = power;
+void Rov::down(){
+  diveRequested = -0.5f;
 }
-
 void Rov::stop(){
-  powerRequested = 0.0f;
+  power = 0.0f;
+  diveRequested = 0.0f;
+}
+float Rov::getPitch(){
+  return (pitch - pitch_bias) * -1;
+}
+float Rov::getRoll(){
+  return (roll - roll_bias) * -1;
+}
+float Rov::getYaw(){
+  return (yaw - yaw_bias) * -1;
 }
 
 #define PITCH_KP  4.0
 #define ROLL_KP 5.0
 #define YAW_KP   4.0
-
 void Rov::step(){
   //pitch
-  float pitchDiff = pitch - 0;
+  float pitchDiff = getPitch() - 0;
   pitchDiff = pitchDiff / 360.0 * PITCH_KP;
   
   //roll
-  float rollDiff = roll - 0;
+  float rollDiff = getRoll() - 0;
   rollDiff = rollDiff / 360.0 * ROLL_KP;
   
   //yaw
-  float yawDiff = headingRequested - yaw;
+  float yawDiff = headingRequested - getYaw();
   if(yawDiff>180) 
     yawDiff -= 360;
   else if (yawDiff < -180)
@@ -93,18 +115,17 @@ void Rov::step(){
   yawDiff /= 360.0;
   yawDiff *= YAW_KP;
 
-#if DEBUG
-  Serial.print("pow:"); Serial.print(powerRequested); Serial.print("\t");
-  Serial.print("head_req:"); Serial.print(headingRequested); Serial.print("\t");
-  Serial.print("pitch:"); Serial.print(pitch); Serial.print("\t");
-  Serial.print("pitchDiff:"); Serial.print(pitchDiff); Serial.print("\t");
-  Serial.print("roll:"); Serial.print(roll); Serial.print("\t");
-  Serial.print("rollDiff:"); Serial.print(rollDiff); Serial.print("\t");
-  Serial.print("yaw:"); Serial.print(yaw); Serial.print("\t");
-  Serial.print("yawDiff:"); Serial.print(yawDiff); Serial.print("\t");
-  Serial.println();
-  //}
-#endif
+  if(DEBUG) {
+    Serial.print("pow:"); Serial.print(powerRequested); Serial.print("\t");
+    Serial.print("head_req:"); Serial.print(headingRequested); Serial.print("\t");
+    Serial.print("pitch:"); Serial.print(getPitch()); Serial.print("\t");
+    Serial.print("pitchDiff:"); Serial.print(pitchDiff); Serial.print("\t");
+    Serial.print("roll:"); Serial.print(getRoll()); Serial.print("\t");
+    Serial.print("rollDiff:"); Serial.print(rollDiff); Serial.print("\t");
+    Serial.print("yaw:"); Serial.print(getYaw()); Serial.print("\t");
+    Serial.print("yawDiff:"); Serial.print(yawDiff); Serial.print("\t");
+    Serial.println();
+  }
 
   //powerRequested = 0; //for test
   motorValues[MOTOR_L] = powerRequested + yawDiff;
@@ -124,11 +145,13 @@ void Rov::step(){
     if(val > 1800) val = 1800;
     if(val < 1200) val = 1200;
     motors[i].write(val);
-    if(DEBUG_MOTOR)  Serial.print("M");
-    if(DEBUG_MOTOR)  Serial.print(i);
-    if(DEBUG_MOTOR)  Serial.print(":");
-    if(DEBUG_MOTOR)  Serial.print(val);
-    if(DEBUG_MOTOR) Serial.print('\t');
+    if(DEBUG_MOTOR)  {
+      Serial.print("M");
+      Serial.print(i);
+      Serial.print(":");
+      Serial.print(val);
+      Serial.print('\t');
+    }
   } 
   if(DEBUG_MOTOR) Serial.println(); 
 }

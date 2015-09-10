@@ -50,7 +50,6 @@ class SerialManager(Thread):
 		self.out_queue.put( self.start_token + data + self.end_token )
 		
 	def run(self):
-		try:
 			while self.running:
 				if self.sleeptime: time.sleep(self.sleeptime)
 				in_data = self.ser.read(self.read_num_bytes)
@@ -65,8 +64,7 @@ class SerialManager(Thread):
 				except Empty, e:
 					pass
 					#print type(e), e	
-		except (KeyboardInterrupt, SystemExit): pass
-		self.ser.close()
+			self.ser.close()
 		
 	def close(self):
 		self.running = False

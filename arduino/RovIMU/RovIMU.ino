@@ -13,11 +13,9 @@ RTIMUSettings settings;                               // the settings object
 Rov rov;
 
 //  DISPLAY_INTERVAL sets the rate at which results are displayed
-
 #define DISPLAY_INTERVAL  100                         // interval between pose displays
-
-//  SERIAL_PORT_SPEED defines the speed to use for the debug serial port
-
+#define LIGHT_PIN 13
+#define CAMERA_PIN 12
 
 unsigned long lastDisplay;
 unsigned long lastRate;
@@ -25,11 +23,14 @@ int sampleCount;
 
 void setup() 
 {
+    Serial.begin(SERIAL_PORT_SPEED);
+    pinMode(LIGHT_PIN, OUTPUT);
+    pinMode(CAMERA_PIN, OUTPUT);
+    
     rov = Rov();
     rov.init();
     
     int errcode;
-    Serial.begin(SERIAL_PORT_SPEED);
     Wire.begin();
     imu = RTIMU::createIMU(&settings);                        // create the imu object
   
@@ -41,7 +42,6 @@ void setup()
             Serial.println(errcode);
         }
     }
-  
     if (imu->getCalibrationValid())
         if(DEBUG) Serial.println("Using compass calibration");
     else
@@ -49,54 +49,115 @@ void setup()
     // Slerp power controls the fusion and can be between 0 and 1
     // 0 means that only gyros are used, 1 means that only accels/compass are used
     // In-between gives the fusion mix.
-    fusion.setSlerpPower(0.1);
+    fusion.setSlerpPower(0.3);
     fusion.setGyroEnable(true);
     fusion.setAccelEnable(true);
     fusion.setCompassEnable(true);
 }
 
 void sendGyroData(RTVector3 p ) {
-    if(EV3_COMM) {
-              Serial.write( 'a' );
-              //RTVector3 p = fusion.getFusionPose();
-              short x = p.x() * RTMATH_RAD_TO_DEGREE * 100;
-              Serial.write( (byte)x );
-              Serial.write( (byte)(x >> 8) );
-              short y = p.y() * RTMATH_RAD_TO_DEGREE * 100;
-              Serial.write( (byte)y );
-               Serial.write( (byte)(y >> 8) );
-              short z = p.z() * RTMATH_RAD_TO_DEGREE * 100;
-              Serial.write( (byte)z );
-              Serial.write( (byte)(z >> 8) );
-              Serial.write( '\n' );
-              /*
-              Serial.print( p.x() * RTMATH_RAD_TO_DEGREE *  );
-              Serial.print("\t");
-              Serial.print( p.y() * RTMATH_RAD_TO_DEGREE );
-              Serial.print("\t");
-              Serial.print( p.z() * RTMATH_RAD_TO_DEGREE );
-              Serial.print("\t");
-              */
-              //Serial.write( "\n" );
-    }
+#ifdef EV3_COMM
+    Serial.write( 'a' );
+    short x = p.x() * RTMATH_RAD_TO_DEGREE * 100;
+    Serial.write( (byte)x );
+    Serial.write( (byte)(x >> 8) );
+    short y = p.y() * RTMATH_RAD_TO_DEGREE * 100;
+    Serial.write( (byte)y );
+    Serial.write( (byte)(y >> 8) );
+    short z = p.z() * RTMATH_RAD_TO_DEGREE * 100;
+    Serial.write( (byte)z );
+    Serial.write( (byte)(z >> 8) );
+    Serial.write( '\n' );
+#endif 
+}
+    
+char buffer[64];
+int pos = 0;
+void processSerial(int index, int len) {
+  char s[len];
+  
+  for(int i=0; i< len; i++)
+    s[i] = buffer[i+index];
+    
+  //Serial.print(">>");
+  //Serial.println(s);
+  
+  if( strcmp("init", s) == 0) {
+  }
+  else if( strcmp("camera_on", s) == 0) {
+    digitalWrite(CAMERA_PIN, HIGH);
+  }
+  else if( strcmp("camera_off", s) == 0) {
+    digitalWrite(CAMERA_PIN, LOW);
+  }
+  else if( strcmp("light_on", s) == 0) {
+    digitalWrite(LIGHT_PIN, HIGH);
+  }
+  else if( strcmp("light_off", s) == 0) {
+    digitalWrite(LIGHT_PIN, LOW);
+  }
+  else if( strcmp("forward", s) == 0) {
+    rov.forward();
+  }
+  else if( strcmp("backward", s) == 0) {
+    rov.backward();
+  }
+  else if( strcmp("stop", s) == 0) {
+    rov.stop();
+  }
+  else if( strcmp("right", s) == 0) {
+    rov.setHeading( rov.getHeading() + 20);
+  }
+  else if( strcmp("left", s) == 0) {
+    rov.setHeading( rov.getHeading() + 20);
+  }
+  else if( strcmp("up", s) == 0) {
+    rov.up();
+  }
+  else if( strcmp("down", s) == 0) {
+    rov.down();
+  }
+  else if( strncmp("power", s, 5) == 0 ) {
+    char t[3];
+    for(int m=0; m <= 3; m++)
+      t[m] = s[m + 5];
+    byte p = atoi(t);
+    rov.setPower(p / 100.0);
+  }
 }
 
-void loop()
-{  
-  //receive command
-  //read IMU, set sensor
-  //PID control
-  //output motors
-  //report gyro
+void readSerial() {
+  boolean readFlag = false;
+  while(Serial.available() > 0){
+    char c = Serial.read();
+    buffer[pos++] = c;
+    readFlag = true;
+  }
+  if(pos==64) pos = 0; //full
   
-    //unsigned long now = millis();
-    unsigned long delta;
+  if(readFlag == true) {
+    for(int i = 0; i < pos; i++) {
+      if(buffer[i] == 'a') {
+        for(int j = i; j < pos; j++) {
+          if(buffer[j] == '\n') {
+            buffer[j] = '\0';
+            processSerial(i+1, j-i);
+            pos = 0;
+            return;
+          }
+        }
+      }
+    }
+  }
+}
+
+RTVector3 readIMU() {
     int loopCount = 1;
     RTVector3 pose;
     
     rov.setHeading(70.0f);
-    rov.forward(0.12f);
-    rov.up(0.5f);
+    //rov.forward(0.12f);
+    //rov.up(0.5f);
   
     while (imu->IMURead()) {                                // get the latest data if ready yet
         // this flushes remaining data in case we are falling behind
@@ -105,26 +166,18 @@ void loop()
         pose = fusion.getFusionPose();
         rov.reportIMU(pose.x() * RTMATH_RAD_TO_DEGREE, pose.y() * RTMATH_RAD_TO_DEGREE, pose.z() * RTMATH_RAD_TO_DEGREE);
     }
-    rov.step();
-    sendGyroData(pose);
-    //delay(100);
+    return pose;
 }
 
-
-/*
-        if ((now - lastDisplay) >= DISPLAY_INTERVAL) {
-            lastDisplay = now;
-            if(DEBUG) {
-              //RTMath::display("Gyro:", (RTVector3&)imu->getGyro());                // gyro data
-              //RTMath::display("Accel:", (RTVector3&)imu->getAccel());              // accel data
-              RTMath::display("Mag:", (RTVector3&)imu->getCompass());              // compass data
-              RTMath::displayRollPitchYaw("Pose:", (RTVector3&)fusion.getFusionPose()); // fused output
-              
-              Serial.print("\t");
-              //RTVector3* mVec = (RTVector3&)imu->getCompass();
-              Serial.print(((RTVector3&)imu->getCompass()).length());
-              Serial.print("\t");
-              Serial.println();
-            }
-        }
-*/
+void loop()
+{  
+  //receive command
+  readSerial();
+  //read IMU, set sensor
+  RTVector3 pose = readIMU();
+  //PID control
+  //output motors
+  rov.step(); 
+  //report gyro
+  sendGyroData(pose);
+}

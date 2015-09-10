@@ -23,8 +23,10 @@ smgr = None
 try:
 	if host.lower().find('edison')>=0:
 		smgr = SerialManager('/dev/ttyMFD1')
+		print 'connect to /dev/ttyMFD1'
 	if host.lower().find('eric')>=0:
-		smgr = SerialManager('COM12')
+		smgr = SerialManager('COM14')
+		print 'connect to COM14'
 	smgr.start()
 except serial.serialutil.SerialException, e:
 	print type(e), e
@@ -91,15 +93,17 @@ def my_app(environ, start_response):
 poll_flag = True;
 def poll_status_forever():
 	data = None
+	count = 0
 	
 	while poll_flag:
 		data = smgr.read()
 		if data:
 			for d in data:
+				count += 1
 				if len(d) == 6:
 					x, y, z = struct.unpack('<hhh', d)
 					if x!=0:
-						#print x/100.0, y/100.0, z/100.0
+						if count%100==0: print x/100.0, y/100.0, z/100.0
 						device_status['pitch'] = x/100.0
 						device_status['roll'] = y/100.0
 						device_status['yaw'] = z/100.0

@@ -6,6 +6,8 @@
 #include "CalLib.h"
 #include "Rov.h"
 #include <EEPROM.h>
+#include <SoftwareSerial.h>
+#include <Servo.h>
 
 RTIMU *imu;                                           // the IMU object
 RTFusionRTQF fusion;                                  // the fusion object
@@ -17,16 +19,55 @@ Rov rov;
 #define LIGHT_PIN 13
 #define CAMERA_PIN 12
 
+SoftwareSerial mySerial(10, 11); // RX, TX
+
 unsigned long lastDisplay;
 unsigned long lastRate;
 int sampleCount;
 
+#define MOTOR_L 0
+#define MOTOR_R 1
+#define MOTOR_LU 2
+#define MOTOR_RU 3
+#define NO_SERVO 4
+
+Servo motors[4];
+
+void writeAll(int s) {
+  for(int i=0; i<4; i++)
+  motors[i].writeMicroseconds(s); 
+}
+
+void setupMotors() {
+  motors[0].attach(6); //L
+  motors[1].attach(9); //R
+  motors[2].attach(3); //LU
+  motors[3].attach(5); //RU
+  delay(500);
+  if(DEBUG) Serial.println("ESC calibrate start - stick low");
+  writeAll(1000);
+  delay(3000);
+  if(DEBUG) Serial.println("ESC calibrate #2 - stick high");
+  writeAll(2000);
+  delay(1200);
+  if(DEBUG) Serial.println("ESC calibrate #3 - stick low");
+  writeAll(1000);
+  delay(1200);
+  if(DEBUG) Serial.println("ESC calibrate #4 - stick middle - long beep");
+  writeAll(1500);
+  delay(3000); //hear 3 beeps to enter RC neturel mode 
+  if(DEBUG) Serial.println("ESC calibrate end");
+}
+
 void setup() 
 {
+    if(DEBUG) Serial.print("setup() #1");
     Serial.begin(SERIAL_PORT_SPEED);
+    mySerial.begin(38400);
     pinMode(LIGHT_PIN, OUTPUT);
     pinMode(CAMERA_PIN, OUTPUT);
     
+    setupMotors();
     rov = Rov();
     rov.init();
     
@@ -53,34 +94,36 @@ void setup()
     fusion.setGyroEnable(true);
     fusion.setAccelEnable(true);
     fusion.setCompassEnable(true);
+    if(DEBUG) Serial.print("setup() #N");
 }
 
 void sendGyroData(RTVector3 p ) {
 #ifdef EV3_COMM
-    Serial.write( 'a' );
+    mySerial.write( 'a' );
     short x = p.x() * RTMATH_RAD_TO_DEGREE * 100;
-    Serial.write( (byte)x );
-    Serial.write( (byte)(x >> 8) );
+    mySerial.write( (byte)x );
+    mySerial.write( (byte)(x >> 8) );
     short y = p.y() * RTMATH_RAD_TO_DEGREE * 100;
-    Serial.write( (byte)y );
-    Serial.write( (byte)(y >> 8) );
+    mySerial.write( (byte)y );
+    mySerial.write( (byte)(y >> 8) );
     short z = p.z() * RTMATH_RAD_TO_DEGREE * 100;
-    Serial.write( (byte)z );
-    Serial.write( (byte)(z >> 8) );
-    Serial.write( '\n' );
+    mySerial.write( (byte)z );
+    mySerial.write( (byte)(z >> 8) );
+    mySerial.write( '\n' );
 #endif 
 }
     
 char buffer[64];
 int pos = 0;
 void processSerial(int index, int len) {
-  char s[len];
+  char s[len+1];
   
   for(int i=0; i< len; i++)
-    s[i] = buffer[i+index];
+    s[i] = buffer[i+index +1];
+  s[len] = 0;
     
-  //Serial.print(">>");
-  //Serial.println(s);
+  Serial.print(">>");
+  Serial.println(s);
   
   if( strcmp("init", s) == 0) {
   }
@@ -118,18 +161,24 @@ void processSerial(int index, int len) {
     rov.down();
   }
   else if( strncmp("power", s, 5) == 0 ) {
-    char t[3];
+  //else if( s[0] == 'p' && s[1] == 'o') {
+    Serial.print("setpow:");
+    char t[4];
     for(int m=0; m <= 3; m++)
       t[m] = s[m + 5];
+    t[3] = 0;
+    Serial.print(t);
     byte p = atoi(t);
+    
+    Serial.println(p);
     rov.setPower(p / 100.0);
   }
 }
 
 void readSerial() {
   boolean readFlag = false;
-  while(Serial.available() > 0){
-    char c = Serial.read();
+  while(mySerial.available() > 0){
+    char c = mySerial.read();
     buffer[pos++] = c;
     readFlag = true;
   }
@@ -141,7 +190,7 @@ void readSerial() {
         for(int j = i; j < pos; j++) {
           if(buffer[j] == '\n') {
             buffer[j] = '\0';
-            processSerial(i+1, j-i);
+            processSerial(i+1, j-i); //skip a
             pos = 0;
             return;
           }
@@ -155,7 +204,7 @@ RTVector3 readIMU() {
     int loopCount = 1;
     RTVector3 pose;
     
-    rov.setHeading(70.0f);
+    //rov.setHeading(70.0f);
     //rov.forward(0.12f);
     //rov.up(0.5f);
   
@@ -169,6 +218,11 @@ RTVector3 readIMU() {
     return pose;
 }
 
+void controlMotors() {
+  for(int i=0; i<4; i++)
+    motors[i].writeMicroseconds(rov.servoValues[i]);
+}
+
 void loop()
 {  
   //receive command
@@ -178,6 +232,7 @@ void loop()
   //PID control
   //output motors
   rov.step(); 
+  controlMotors();
   //report gyro
   sendGyroData(pose);
 }

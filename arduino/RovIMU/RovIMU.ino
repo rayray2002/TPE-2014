@@ -45,10 +45,10 @@ void setupMotors() {
   motors[1].attach(9); //R
   motors[2].attach(3); //LU
   motors[3].attach(5); //RU
-  delay(500);
+  
   if(DEBUG) Serial.println("ESC calibrate start - stick low");
   writeAll(1000);
-  delay(3000);
+  delay(5000);
   if(DEBUG) Serial.println("ESC calibrate #2 - stick high");
   writeAll(2000);
   delay(1200);
@@ -70,6 +70,7 @@ void setup()
     pinMode(CAMERA_PIN, OUTPUT);
     
     setupMotors();
+    
     rov = Rov();
     rov.init();
     

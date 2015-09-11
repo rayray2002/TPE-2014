@@ -109,12 +109,8 @@ def test_proxy():
 	
 	
 def test_serial():
-	import argparse
-	parser = argparse.ArgumentParser(description='A class to manage reading and writing from and to a serial port.')
-	parser.add_argument('device', help='The serial port to use (COM4, /dev/ttyUSB1 or similar).')
-	args = parser.parse_args()
 
-	s1 = SerialManager(args.device)
+	s1 = SerialManager("COM27")
 	s1.sleeptime = 0.01
 	s1.read_num_size = 512
 	s1.start()
@@ -135,4 +131,4 @@ def test_serial():
 	s1.join()
 
 if __name__ == "__main__":
-	test_proxy() 
+	test_serial() 

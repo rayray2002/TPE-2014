@@ -27,6 +27,9 @@ try:
 	if host.lower().find('eric')>=0:
 		smgr = SerialManager('COM14')
 		print 'connect to COM14'
+	if host.lower().find('thumb17')>=0:
+		smgr = SerialManager('COM37')
+		print 'connect to COM37'
 	smgr.start()
 except serial.serialutil.SerialException, e:
 	print type(e), e
@@ -60,15 +63,17 @@ def my_app(environ, start_response):
 
 		if smgr:
 			if arg:
-				smgr.write('a' + state + '/' + arg + '\n')
+				for i in range(3):
+					smgr.write('a' + state + '/' + arg + '\n')
 			else:
-				smgr.write('a' + state + '\n')
+				for i in range(3):
+					smgr.write('a' + state + '\n')
 			print repr(smgr.read()) 
 		start_response('200 OK', [('Content-type', 'text/html')])
 		return ""
 		
 	elif p.find("/poll") >= 0:
-		global device_status
+		#global device_status
 		start_response('200 OK', [('Content-type', 'application/json')])
 		ret  = json.dumps(device_status)
 		return ret

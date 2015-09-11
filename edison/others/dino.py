@@ -52,49 +52,8 @@ def my_app(environ, start_response):
 		status = '200 OK'
 		response_headers = [('Content-type', 'text/plain')]
 		start_response(status, response_headers)
-		return ["please enter xy"]
-		
-	def getbit(data, bit):
-		return (data & (1<<(7 - bit))) >> 7 - bit
-		
-	def cord(query_dict, start_response):
-		x = int(query_dict.get('x',[0])[0])
-		y = int(query_dict.get('y',[0])[0])
-		data = [x, y]
-		print 'cord', x, y
-		laser_pin = mraa.Gpio(8)
-		laser_pin.dir(mraa.DIR_OUT)
-		delay = 0.3 #0.3 * 17 + 2
-		for i in range(5):
-			print '='*10, i
-			print "start bit"
-			laser_pin.write(1)
-			time.sleep(delay/3)
-			laser_pin.write(0)
-			time.sleep(delay*2/3)
-			
-			for l in range(len(data)):
-				if l == 0: print "x"
-				else: print "y"
-				
-				for i in range(8):
-					if getbit(data[l],i) == 1:
-						print i, "on"
-						laser_pin.write(1)
-					else:
-						print i, "off"
-						laser_pin.write(0)
-					time.sleep(delay/3)
-					laser_pin.write(0)
-					time.sleep(delay*2/3)
+		return ["please enter path"]
 
-			time.sleep(2)
-		
-		status = '200 OK'
-		response_headers = [('Content-type', 'text/plain')]
-		start_response(status, response_headers)
-		return "sent"
-		
 	# http://192.168.1.109:8123/motor?
 	def motor(environ, start_response):
 		dir = int(query_dict.get('dir',[0])[0]) #either 1 or 2
@@ -133,12 +92,10 @@ def my_app(environ, start_response):
 
 	p = environ['PATH_INFO']
 	query_dict = parse_qs(environ['QUERY_STRING'])
-	
-	if p.find("/cord")>=0:
-		return cord(query_dict, start_response)
-		
+		 
 	elif p.find("/motor")>=0:
 		return motor(query_dict, start_response)
+		
 	elif p.find("/")>=0:
 		return index()
 		

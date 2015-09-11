@@ -32,6 +32,8 @@ int sampleCount;
 #define NO_SERVO 4
 
 Servo motors[4];
+int fixedServoValues[4];
+boolean fixed = false;
 
 void writeAll(int s) {
   for(int i=0; i<4; i++)
@@ -141,36 +143,50 @@ void processSerial(int index, int len) {
   }
   else if( strcmp("forward", s) == 0) {
     rov.forward();
+    fixed = true;
+    fixedServoValues[MOTOR_L] = fixedServoValues[MOTOR_R] = 1500 + 100.0 * rov.power;
   }
   else if( strcmp("backward", s) == 0) {
     rov.backward();
+    fixedServoValues[MOTOR_L] = fixedServoValues[MOTOR_R] = 1500 + 100.0 * rov.power;
   }
   else if( strcmp("stop", s) == 0) {
     rov.stop();
+    fixed = false;
+    fixedServoValues[MOTOR_L] = fixedServoValues[MOTOR_R] = 1500;
+    fixedServoValues[MOTOR_LU] = fixedServoValues[MOTOR_RU] = 1500;
   }
   else if( strcmp("right", s) == 0) {
-    rov.setHeading( rov.getHeading() + 20);
+    rov.right();
+    fixed = true;
+    fixedServoValues[MOTOR_L] = 1500; 
+    fixedServoValues[MOTOR_R] = 1600;
+    
   }
   else if( strcmp("left", s) == 0) {
-    rov.setHeading( rov.getHeading() + 20);
+    rov.left();
+    fixed = true;
+    fixedServoValues[MOTOR_L] = 1600; 
+    fixedServoValues[MOTOR_R] = 1500;
   }
   else if( strcmp("up", s) == 0) {
     rov.up();
-  }
+    fixed = true;
+    fixedServoValues[MOTOR_LU] = 1600; 
+    fixedServoValues[MOTOR_RU] = 1600;
+    }
   else if( strcmp("down", s) == 0) {
     rov.down();
+    fixed = true;
+    fixedServoValues[MOTOR_LU] = 1400; 
+    fixedServoValues[MOTOR_RU] = 1400;
   }
   else if( strncmp("power", s, 5) == 0 ) {
-  //else if( s[0] == 'p' && s[1] == 'o') {
-    Serial.print("setpow:");
     char t[4];
     for(int m=0; m <= 3; m++)
       t[m] = s[m + 5];
     t[3] = 0;
-    Serial.print(t);
     byte p = atoi(t);
-    
-    Serial.println(p);
     rov.setPower(p / 100.0);
   }
 }
@@ -204,35 +220,46 @@ RTVector3 readIMU() {
     int loopCount = 1;
     RTVector3 pose;
     
-    //rov.setHeading(70.0f);
-    //rov.forward(0.12f);
-    //rov.up(0.5f);
-  
-    while (imu->IMURead()) {                                // get the latest data if ready yet
-        // this flushes remaining data in case we are falling behind
+    while (imu->IMURead()) {
         if (++loopCount >= 20) continue;
         fusion.newIMUData(imu->getGyro(), imu->getAccel(), imu->getCompass(), imu->getTimestamp());
         pose = fusion.getFusionPose();
         rov.reportIMU(pose.x() * RTMATH_RAD_TO_DEGREE, pose.y() * RTMATH_RAD_TO_DEGREE, pose.z() * RTMATH_RAD_TO_DEGREE);
     }
+    
     return pose;
 }
 
 void controlMotors() {
-  for(int i=0; i<4; i++)
-    motors[i].writeMicroseconds(rov.servoValues[i]);
+  for(int i=0; i<4; i++) {
+    int v = 0;
+    if(fixed) v = fixedServoValues[i];
+    else v = rov.servoValues[i];
+    motors[i].writeMicroseconds(v);
+#if 0
+      Serial.print("T");
+      Serial.print(i);
+      Serial.print(":");
+      Serial.print(v);
+      Serial.print('\t');
+#endif
+  }
+  //Serial.print('\n');
 }
 
 void loop()
 {  
   //receive command
   readSerial();
+  
   //read IMU, set sensor
   RTVector3 pose = readIMU();
+  
   //PID control
   //output motors
   rov.step(); 
   controlMotors();
+  
   //report gyro
   sendGyroData(pose);
 }

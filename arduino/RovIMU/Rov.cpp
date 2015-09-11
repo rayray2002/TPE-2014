@@ -48,7 +48,7 @@ void Rov::setDepth(float depth){
   diveRequested = depth;
 } 
 void Rov::setPower(float p){
-  power = powerRequested = p;
+  powerRequested = p;
 } 
 void Rov::forward(){
   power = powerRequested;
@@ -56,16 +56,21 @@ void Rov::forward(){
 void Rov::backward(){
   power = powerRequested*-1;
 } 
+void Rov::right(){
+  headingRequested = yaw + 30;
+} 
+void Rov::left(){
+  headingRequested = yaw - 30;
+}
 void Rov::up(){
-  //power = powerRequested;
-  diveRequested = 0.5f;
+  diveRequested = 0.6f;
 } 
 void Rov::down(){
-  diveRequested = -0.5f;
+  diveRequested = -0.6f;
 }
 void Rov::stop(){
-  power = 0.0f;
-  diveRequested = 0.0f;
+  power = diveRequested = 0.0f;
+  headingRequested = yaw;
 }
 float Rov::getPitch(){
   return (pitch - pitch_bias) * -1;
@@ -77,11 +82,12 @@ float Rov::getYaw(){
   return (yaw - yaw_bias) * -1;
 }
 
-#define PITCH_KP  8.0
+#define PITCH_KP  6.0
 #define ROLL_KP 5.0
 #define YAW_KP   4.0
 void Rov::step(){
   boolean display_flag =  count++ %100 ==0;
+  display_flag = true;
   
   //pitch
   float pitchDiff = getPitch() - 0;
@@ -99,6 +105,7 @@ void Rov::step(){
     yawDiff += 360;
   yawDiff /= 360.0;
   yawDiff *= YAW_KP;
+  yawDiff = 0.0f; //for test
 
   if(DEBUG && display_flag) {
     Serial.print("pow:"); Serial.print(powerRequested); Serial.print("\t");
@@ -136,8 +143,8 @@ void Rov::step(){
       Serial.print(val);
       Serial.print('\t');
     }
-    if(i==2) val = 1500 - (val - 1500); //only for LU
-    if(val < 1550 && val > 1450) val = 1500;
+    if(i==0 || i==1 || i==2) val = 1500 - (val - 1500); //only for LU
+    if(val < 1530 && val > 1470) val = 1500;
     servoValues[i] = val;
   } 
   if(DEBUG_MOTOR && display_flag) Serial.println(); 

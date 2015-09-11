@@ -23,12 +23,15 @@ class Rov{
     void backward();
     void up();
     void down();
+    void right();
+    void left();
     void stop();
     void step(); 
     float getRoll();
     float getPitch();
     float getYaw(); 
     int servoValues[4];
+    float power;
     
   private:
     //void writeMicrosecondsForAll(int ms);
@@ -42,7 +45,6 @@ class Rov{
     float pitch_bias;
     float roll_bias;
     float yaw_bias;
-    float power;
     float motorValues[4];
     //Servo motors[4];
     int count;

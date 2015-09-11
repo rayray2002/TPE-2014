@@ -113,9 +113,11 @@ t = threading.Thread(target = poll_status_forever)
 t.start()
 
 try:
-	httpd = make_server('', 8000, my_app)
+	import paste.httpserver
 	print "Serving on port 8000..."
-	httpd.serve_forever()
+	paste.httpserver.serve(my_app, host='0.0.0.0', port='8000')  #this works fast!
+	#httpd = make_server('', 8000, my_app)
+	#httpd.serve_forever()
 except KeyboardInterrupt:
 	pass
 	

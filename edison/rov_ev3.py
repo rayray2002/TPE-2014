@@ -1,8 +1,13 @@
 from uart import SerialManager
+import socket
+host = socket.gethostname()
+
 
 def run_proxy():
-	#TODO: check EV1 S1 and S2 part
-	proxy = SerialProxy('COM2', 'COM3')
+	proxy = None
+	if host.find('ev3') >= 0:
+		proxy = SerialProxy('tty_in1', 'tty_in2')
+	else: proxy = SerialProxy('COM2', 'COM3')
 	proxy.start()
 	
 	while True:

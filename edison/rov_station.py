@@ -114,9 +114,9 @@ t.start()
 
 try:
 	import paste.httpserver
-	print "Serving on port 8000..."
-	paste.httpserver.serve(my_app, host='0.0.0.0', port='8000')  #this works fast!
-	#httpd = make_server('', 8000, my_app)
+	print "Serving on port 8123..."
+	paste.httpserver.serve(my_app, host='0.0.0.0', port='8123')  #this works fast!
+	#httpd = make_server('', 8123, my_app)
 	#httpd.serve_forever()
 except KeyboardInterrupt:
 	pass

@@ -106,7 +106,7 @@ function poll() {
 			yaw = data.yaw;
 			if(light_flag != data.light) set_light_state(data.light);
 			if(camera_flag != data.camera) set_camera_state(data.camera);
-			
+			$("#gyro").html( "pitch: " + round(data.pitch*360) + "<br/>roll: " + round(data.roll*360) + "<br/>yaw: "  + round(data.yaw*360) ); 
 		}
 	});
 	setTimeout(poll, 2000);
